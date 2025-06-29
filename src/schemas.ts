@@ -6,19 +6,19 @@ export interface Color {
   b: number;
 }
 
-export interface TurbulencePoint {
-  readonly position: THREE.Vector3;
-  readonly direction: THREE.Vector3;
-  readonly radius: number;
+export interface TurbulenceSchema {
+  position: THREE.Vector3;
+  direction: THREE.Vector3;
+  radius: number;
+  readonly threeLine: THREE.Line;
 }
 
 export interface TurbulenceFieldSchema {
-  readonly points: TurbulencePoint[];
+  readonly points: TurbulenceSchema[];
   getTurbulenceAt(position: THREE.Vector3): THREE.Vector3;
-  createRandomPattern(
-    position: THREE.Vector3,
-    radius: number, count: number, force: number, pointRadius: number
-  ): void;
+  force: number;
+  radius: number;
+  readonly count: number;
 }
 
 
@@ -29,20 +29,16 @@ export interface ParticleRendererSchema {
 }
 
 export interface TurbulenceRendererSchema {
-  drawTurbulencePoints(points: TurbulencePoint[]): void;
+  drawTurbulencePoints(points: TurbulenceSchema[]): void;
   clear(): void;
 }
-
-
 
 
 export interface ParticleSchema {
   readonly position: THREE.Vector3;
   readonly color: Color;
-  readonly alpha: number;
   readonly size: number;
   update(deltaTime: number): void;
-  isAlive(): boolean;
   addVelocity(x: number, y: number, z: number): void;
   addForce(x: number, y: number, z: number): void;
   applyTurbulence(turbulence: THREE.Vector3): void;
@@ -53,9 +49,8 @@ export interface ParticleFactorySchema {
 }
 
 export interface ParticleEngineSchema {
-  particles: ParticleSchema[];
+  particles: (ParticleSchema | undefined)[];
   spawnParticles(x: number, y: number, z: number, amount: number): void;
   update(deltaTime: number): void;
-  sortParticles(): void;
   set particleFactory(factory: ParticleFactorySchema);
 }

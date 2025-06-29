@@ -15,16 +15,13 @@ const RED_VARIANTS: number[] = [
 
 const DEFAULT_CONFIG = {
   SIZE: 3,
-  MAX_LIFETIME: 4000,
-  LIFETIME_VARIATION: 2000,
   AIR_RESISTANCE: 0.00008,
-  INITIAL_FORCE: 200
+  INITIAL_FORCE: 1
 };
 
 export class Particle implements ParticleSchema {
   private readonly _size: number = DEFAULT_CONFIG.SIZE;
   private lifetime: number = 0;
-  private readonly maxLifetime: number;
   private velocity: THREE.Vector3;
   readonly position: THREE.Vector3;
   private readonly airResistance: number = DEFAULT_CONFIG.AIR_RESISTANCE;
@@ -33,12 +30,7 @@ export class Particle implements ParticleSchema {
   constructor(x: number, y: number, z: number) {
     this.position = new THREE.Vector3(x, y, z);
     this.velocity = this.normalizeVelocity(DEFAULT_CONFIG.INITIAL_FORCE);
-    this.maxLifetime = DEFAULT_CONFIG.MAX_LIFETIME + (Math.random() - 0.5) * DEFAULT_CONFIG.LIFETIME_VARIATION;
     this.color = this.generateColor();
-  }
-
-  get alpha(): number {
-    return 1 - this.lifeTimePercentage();
   }
 
   get size(): number {
@@ -103,14 +95,6 @@ export class Particle implements ParticleSchema {
     this.velocity.x += turbulence.x;
     this.velocity.y += turbulence.y;
     this.velocity.z += turbulence.z;
-  }
-
-  isAlive(): boolean {
-    return this.lifetime < this.maxLifetime;
-  }
-
-  private lifeTimePercentage(): number {
-    return this.lifetime / this.maxLifetime;
   }
 
   addVelocity(x: number, y: number, z: number): void {

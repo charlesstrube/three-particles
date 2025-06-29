@@ -1,7 +1,6 @@
 import { ParticleEngine } from './particles/ParticleEngine'
 import { TurbulenceField } from './particles/TurbulenceField'
 import { RenderEngine } from './render/RenderEngine'
-import * as THREE from 'three'
 import './style.css'
 import { GUI } from 'dat.gui'
 
@@ -9,14 +8,15 @@ const params = {
   amount: 1000,
 }
 const turbulenceParams = {
-  force: 10,
-  radius: 100,
-  count: 50,
+  force: .01,
+  radius: 1,
+  count: 200,
 }
+
 const cameraParams = {
   fov: 90,
   near: 0.01,
-  far: 1000,
+  far: 5000,
 }
 
 const size = {
@@ -26,19 +26,12 @@ const size = {
 
 
 
-
-
-// const turbulenceField = new TurbulenceField()
-// const Particular = new ParticleEngine(turbulenceField)
-
-// // Configuration initiale du champ de turbulence
-// turbulenceField.createRandomPattern(
-//   new THREE.Vector3(size.width / 2, size.height / 2, 0),           // Centre
-//   300,                // Rayon de la zone
-//   turbulenceParams.count, // Nombre de points
-//   turbulenceParams.force, // Force
-//   turbulenceParams.radius    // Rayon d'influence de chaque point
-// )
+const turbulenceField = new TurbulenceField(
+  turbulenceParams.force,
+  turbulenceParams.count,
+  turbulenceParams.radius
+)
+const Particles = new ParticleEngine(turbulenceField)
 
 const render = new RenderEngine({
   width: size.width,
@@ -46,10 +39,12 @@ const render = new RenderEngine({
   fov: cameraParams.fov,
   near: cameraParams.near,
   far: cameraParams.far,
-})
+},
+  Particles,
+  turbulenceField
+)
 
 const gui = new GUI({ name: 'params' })
-
 
 const cameraGui = gui.addFolder('camera')
 cameraGui.open()
@@ -65,6 +60,15 @@ cameraGui.add(cameraParams, 'far', 0.01, 1000).onChange(value => {
   render.camera.far = value
   render.camera.updateProjectionMatrix()
 })
+const turbulenceGui = gui.addFolder('turbulence')
+turbulenceGui.open()
+turbulenceGui.add(turbulenceParams, 'force', 0, 1).onChange(value => {
+  turbulenceField.force = value
+})
+turbulenceGui.add(turbulenceParams, 'radius', 0, 1).onChange(value => {
+  turbulenceField.radius = value
+})
+
 
 render.setup()
 render.loop()

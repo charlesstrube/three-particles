@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'stats.js'
 
 import img from '../textures/disc.png'
-
+import type { ParticleEngineSchema, TurbulenceFieldSchema, TurbulenceSchema } from "../schemas";
 
 interface RenderEngineParams {
   width: number;
@@ -11,6 +11,7 @@ interface RenderEngineParams {
   fov: number;
   near: number;
   far: number;
+
 }
 
 export class RenderEngine {
@@ -20,12 +21,19 @@ export class RenderEngine {
 
   private _deltaTime: number = 0;
   private _state: Stats;
-  private geometry?: THREE.BufferGeometry;
+  private particlesGeometry?: THREE.BufferGeometry;
+  private lines: THREE.Line[] = [];
 
-  constructor({ width, height, fov = 75, near = 0.01, far = 1000 }: RenderEngineParams) {
+  constructor(
+    { width, height, fov = 75, near = 0.01, far = 1000 }: RenderEngineParams,
+    private particle: ParticleEngineSchema,
+    private turbulenceField: TurbulenceFieldSchema
+  ) {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x333333);
     this.camera = new THREE.PerspectiveCamera(fov, width / height, near, far);
+    const axesHelper = new THREE.AxesHelper(1);
+    this.scene.add(axesHelper);
     this.camera.position.z = 2
     this.scene.add(this.camera);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -43,39 +51,53 @@ export class RenderEngine {
     // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild(stats.dom);
     return stats;
-  };
+  }
 
-
-  createGeometry() {
+  createParticles() {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
 
-    for (let i = 0; i < 10000; i++) {
+    const particles = this.particle.particles;
 
-      const x = 40 * Math.random() - 20;
-      const y = 40 * Math.random() - 20;
-      const z = 40 * Math.random() - 20;
+    for (let i = 0; i < particles.length; i++) {
 
-      vertices.push(x, y, z);
-
+      const particle = particles[i];
+      if (!particle) {
+        vertices.push(0, 0, 0);
+      } else {
+        vertices.push(particle.position.x, particle.position.y, particle.position.z);
+      }
     }
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-    // const geometry = new THREE.BoxGeometry(1, 1, 1, 3, 3, 3);
     return geometry;
   }
 
-  setup() {
-    const texture = new THREE.TextureLoader().load(img);
+  updateTurbulence() {
+    const points = this.turbulenceField.points;
+    for (let i = 0; i < points.length; i++) {
 
+    }
+  }
+
+  drawTurbulence() {
+    const points = this.turbulenceField.points;
+    for (let i = 0; i < points.length; i++) {
+      this.scene.add(points[i].threeLine)
+    }
+  }
+
+  setup() {
+    // const texture = new THREE.TextureLoader().load(img)
     const color = new THREE.Color(0x00ff00);
-    const geometry = this.createGeometry();
-    this.geometry = geometry;
+    const geometry = this.createParticles();
+    this.drawTurbulence();
+    this.particlesGeometry = geometry;
     const material = new THREE.PointsMaterial();
-    material.size = .1;
+    material.size = .01;
     material.color = color;
-    material.map = texture;
+    // material.map = texture;
     material.transparent = true;
     material.sizeAttenuation = true;
     const particles = new THREE.Points(geometry, material);
@@ -83,15 +105,22 @@ export class RenderEngine {
   }
 
   updateGeometry(deltaTime: number) {
-    if (!this.geometry) return;
-    const positions = this.geometry.attributes.position.array;
-    for (let i = 0; i < positions.length; i += 3) {
-      const y = positions[i + 1];
-      positions[i + 1] = y + Math.sin(deltaTime * 0.001 + i) * 0.001; // petit mouvement
-    }
-    this.geometry.attributes.position.needsUpdate = true;
-  }
+    if (!this.particlesGeometry) return;
+    const positions = this.particlesGeometry.attributes.position.array;
+    const particles = this.particle.particles;
+    for (let i = 0; i < particles.length; i++) {
+      const particle = particles[i];
+      if (!particle) continue
 
+      const x = particle.position.x;
+      const y = particle.position.y;
+      const z = particle.position.z;
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+    }
+    this.particlesGeometry.attributes.position.needsUpdate = true;
+  }
 
   render() {
     this._state.begin();
@@ -99,6 +128,7 @@ export class RenderEngine {
     const deltaTime = currentTime - this._deltaTime;
     this._deltaTime = currentTime;
 
+    this.particle.update(deltaTime);
     this.updateGeometry(deltaTime);
 
     this.renderer.render(this.scene, this.camera);
