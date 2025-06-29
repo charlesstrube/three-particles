@@ -5,7 +5,7 @@ import './style.css'
 import { GUI } from 'dat.gui'
 
 const params = {
-  amount: 1000,
+  amount: 10000,
 }
 const turbulenceParams = {
   force: .01,
@@ -16,7 +16,7 @@ const turbulenceParams = {
 const cameraParams = {
   fov: 90,
   near: 0.01,
-  far: 5000,
+  far: 100,
 }
 
 const size = {
@@ -31,7 +31,7 @@ const turbulenceField = new TurbulenceField(
   turbulenceParams.count,
   turbulenceParams.radius
 )
-const Particles = new ParticleEngine(turbulenceField)
+const Particles = new ParticleEngine(params.amount, turbulenceField)
 
 const render = new RenderEngine({
   width: size.width,
@@ -54,11 +54,11 @@ cameraGui.add(cameraParams, 'fov', 20, 120).onChange(value => {
   render.camera.fov = value
   render.camera.updateProjectionMatrix()
 })
-cameraGui.add(cameraParams, 'near', 0.01, 1000).onChange(value => {
+cameraGui.add(cameraParams, 'near', 0.01, 100).onChange(value => {
   render.camera.near = value
   render.camera.updateProjectionMatrix()
 })
-cameraGui.add(cameraParams, 'far', 0.01, 1000).onChange(value => {
+cameraGui.add(cameraParams, 'far', 0.01, 100).onChange(value => {
   render.camera.far = value
   render.camera.updateProjectionMatrix()
 })

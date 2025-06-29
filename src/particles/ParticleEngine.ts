@@ -7,10 +7,11 @@ export class ParticleEngine implements ParticleEngineSchema {
   private _particleFactory: ParticleFactorySchema
 
   constructor(
+    count: number,
     private _turbulenceField: TurbulenceFieldSchema
   ) {
     this._particleFactory = new DefaultParticleFactory()
-    this.spawnParticles(0, 0, 0, 10000)
+    this.spawnParticles(0, 0, 0, count)
   }
 
   get particles() {
