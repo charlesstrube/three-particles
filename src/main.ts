@@ -3,6 +3,7 @@ import { TurbulenceField } from './particles/TurbulenceField'
 import { RenderEngine } from './render/RenderEngine'
 import * as THREE from 'three'
 import './style.css'
+import { GUI } from 'dat.gui'
 
 const params = {
   amount: 1000,
@@ -13,8 +14,6 @@ const turbulenceParams = {
   count: 50,
 }
 const cameraParams = {
-  x: 90,
-  y: 90,
   fov: 90,
   near: 0.01,
   far: 1000,
@@ -24,6 +23,8 @@ const size = {
   width: window.innerWidth,
   height: window.innerHeight,
 }
+
+
 
 
 
@@ -47,6 +48,23 @@ const render = new RenderEngine({
   far: cameraParams.far,
 })
 
+const gui = new GUI({ name: 'params' })
+
+
+const cameraGui = gui.addFolder('camera')
+cameraGui.open()
+cameraGui.add(cameraParams, 'fov', 20, 120).onChange(value => {
+  render.camera.fov = value
+  render.camera.updateProjectionMatrix()
+})
+cameraGui.add(cameraParams, 'near', 0.01, 1000).onChange(value => {
+  render.camera.near = value
+  render.camera.updateProjectionMatrix()
+})
+cameraGui.add(cameraParams, 'far', 0.01, 1000).onChange(value => {
+  render.camera.far = value
+  render.camera.updateProjectionMatrix()
+})
 
 render.setup()
 render.loop()
