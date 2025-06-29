@@ -55,6 +55,7 @@ export class RenderEngine {
   createParticles() {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
+    const colors = [];
 
     const particles = this.particle.particles;
 
@@ -63,12 +64,16 @@ export class RenderEngine {
       const particle = particles[i];
       if (!particle) {
         vertices.push(0, 0, 0);
+        colors.push(1, 1, 1); // Couleur blanche par défaut
       } else {
         vertices.push(particle.position.x, particle.position.y, particle.position.z);
+        // Utiliser la couleur individuelle de la particule
+        colors.push(particle.color.r, particle.color.g, particle.color.b);
       }
     }
 
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
     return geometry;
   }
@@ -103,16 +108,15 @@ export class RenderEngine {
 
   setup() {
     // const texture = new THREE.TextureLoader().load(img)
-    const color = new THREE.Color(0x00ff00);
     const geometry = this.createParticles();
     this.drawTurbulence();
     this.particlesGeometry = geometry;
     const material = new THREE.PointsMaterial();
     material.size = .01;
-    material.color = color;
     // material.map = texture;
     material.transparent = true;
     material.sizeAttenuation = true;
+    material.vertexColors = true;
     const particles = new THREE.Points(geometry, material);
     this.scene.add(particles);
   }
@@ -120,6 +124,7 @@ export class RenderEngine {
   updateGeometry(deltaTime: number) {
     if (!this.particlesGeometry) return;
     const positions = this.particlesGeometry.attributes.position.array;
+    const colors = this.particlesGeometry.attributes.color.array;
     const particles = this.particle.particles;
     for (let i = 0; i < particles.length; i++) {
       const particle = particles[i];
@@ -131,8 +136,14 @@ export class RenderEngine {
       positions[i * 3] = x;
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z;
+
+      // Mettre à jour les couleurs
+      colors[i * 3] = particle.color.r;
+      colors[i * 3 + 1] = particle.color.g;
+      colors[i * 3 + 2] = particle.color.b;
     }
     this.particlesGeometry.attributes.position.needsUpdate = true;
+    this.particlesGeometry.attributes.color.needsUpdate = true;
   }
 
   render() {

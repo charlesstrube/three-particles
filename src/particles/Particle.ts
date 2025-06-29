@@ -10,6 +10,10 @@ const RED_VARIANTS: number[] = [
   0xc80000,  // Rouge foncé
   0xff6464,  // Rouge pâle
   0xb40000,  // Rouge bordeaux
+  white,
+  white,
+  white,
+  white,
   white
 ];
 
@@ -37,10 +41,15 @@ export class Particle implements ParticleSchema {
     return this._size;
   }
 
-  private generateColor(): THREE.Color {
+  private generateColor(): Color {
     const color = RED_VARIANTS[Math.floor(Math.random() * RED_VARIANTS.length)];
+    const threeColor = new THREE.Color(color);
 
-    return new THREE.Color(color);
+    return {
+      r: threeColor.r,
+      g: threeColor.g,
+      b: threeColor.b
+    };
   }
 
   private normalizeVelocity(force: number): THREE.Vector3 {
