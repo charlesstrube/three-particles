@@ -22,7 +22,7 @@ export class RenderEngine {
   private _deltaTime: number = 0;
   private _state: Stats;
   private particlesGeometry?: THREE.BufferGeometry;
-  private lines: THREE.Line[] = [];
+  private showTurbulenceGeometry: boolean = false;
 
   constructor(
     { width, height, fov = 75, near = 0.01, far = 1000 }: RenderEngineParams,
@@ -34,7 +34,7 @@ export class RenderEngine {
     this.camera = new THREE.PerspectiveCamera(fov, width / height, near, far);
     const axesHelper = new THREE.AxesHelper(1);
     this.scene.add(axesHelper);
-    this.camera.position.z = 2
+    this.camera.position.z = 5
     this.scene.add(this.camera);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(width, height);
@@ -74,14 +74,28 @@ export class RenderEngine {
     return geometry;
   }
 
-  updateTurbulence() {
-    const points = this.turbulenceField.points;
-    for (let i = 0; i < points.length; i++) {
-
+  set showVectors(value: boolean) {
+    this.showTurbulenceGeometry = value
+    if (value) {
+      this.drawTurbulence()
+    } else {
+      this.clearTurbulence()
     }
   }
 
+  clearTurbulence() {
+    const points = this.turbulenceField.points;
+    for (let i = 0; i < points.length; i++) {
+      this.scene.remove(points[i].threeLine)
+    }
+  }
+
+  get showVectors(): boolean {
+    return this.showTurbulenceGeometry
+  }
+
   drawTurbulence() {
+    if (!this.showTurbulenceGeometry) return;
     const points = this.turbulenceField.points;
     for (let i = 0; i < points.length; i++) {
       this.scene.add(points[i].threeLine)

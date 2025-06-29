@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import getInfluence from "../helpers/getInfluence";
-import getMagnitude from "../helpers/getMagnitude";
 import type { TurbulenceFieldSchema, TurbulenceSchema } from "../schemas";
 import { Turbulence } from "./Turbulence";
 
@@ -11,13 +10,35 @@ export class TurbulenceField implements TurbulenceFieldSchema {
     return this._points
   }
   constructor(
-    public force: number,
-    readonly count: number,
-    public radius: number
+    force: number,
+    count: number,
+    pointRadius: number
   ) {
+    const radius = 5
     this.createRandomPattern(
-      5,
+      count,
+      radius,
+      force,
+      pointRadius
     )
+  }
+
+  set force(value: number) {
+    for (const point of this._points) {
+      point.force = value
+    }
+  }
+
+  set radius(value: number) {
+    for (const point of this._points) {
+      point.radius = value
+    }
+  }
+
+  updateTurbulence(): void {
+    for (const point of this._points) {
+      point.updateLine()
+    }
   }
 
   getTurbulenceAt(position: THREE.Vector3): THREE.Vector3 {
@@ -48,10 +69,13 @@ export class TurbulenceField implements TurbulenceFieldSchema {
   }
 
   private createRandomPattern(
+    count: number,
     radius: number,
+    force: number,
+    pointRadius: number
   ): void {
     const points: TurbulenceSchema[] = [];
-    for (let i = 0; i < this.count; i++) {
+    for (let i = 0; i < count; i++) {
       // Position aléatoire dans la sphère
       const angle1 = Math.random() * Math.PI * 2;
       const angle2 = Math.acos(2 * Math.random() - 1);
@@ -60,28 +84,20 @@ export class TurbulenceField implements TurbulenceFieldSchema {
       const particlePosition: THREE.Vector3 = new THREE.Vector3(
         r * Math.sin(angle2) * Math.cos(angle1),
         r * Math.sin(angle2) * Math.sin(angle1),
-        + r * Math.cos(angle2)
+        r * Math.cos(angle2)
       );
 
-      const direction = new THREE.Vector3(
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2
-      );
-
-      // Normaliser et appliquer la force
-      const magnitude = getMagnitude(direction);
-      if (magnitude > 0) {
-        direction.x = (direction.x / magnitude) * this.force;
-        direction.y = (direction.y / magnitude) * this.force;
-        direction.z = (direction.z / magnitude) * this.force;
-      }
-
-      const point = new Turbulence(particlePosition, direction, this.radius)
+      const point = new Turbulence(
+        particlePosition,
+        pointRadius,
+        force
+      )
 
       points.push(point);
     }
 
     this._points = points;
   }
+
+
 } 

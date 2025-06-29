@@ -9,16 +9,16 @@ export interface Color {
 export interface TurbulenceSchema {
   position: THREE.Vector3;
   direction: THREE.Vector3;
-  radius: number;
+  get radius(): number;
+  set radius(radius: number);
+  set force(force: number);
   readonly threeLine: THREE.Line;
+  updateLine(): void;
 }
 
 export interface TurbulenceFieldSchema {
   readonly points: TurbulenceSchema[];
   getTurbulenceAt(position: THREE.Vector3): THREE.Vector3;
-  force: number;
-  radius: number;
-  readonly count: number;
 }
 
 

@@ -44,6 +44,8 @@ const render = new RenderEngine({
   turbulenceField
 )
 
+
+
 const gui = new GUI({ name: 'params' })
 
 const cameraGui = gui.addFolder('camera')
@@ -62,13 +64,17 @@ cameraGui.add(cameraParams, 'far', 0.01, 1000).onChange(value => {
 })
 const turbulenceGui = gui.addFolder('turbulence')
 turbulenceGui.open()
+turbulenceGui.add(render, 'showVectors').onChange(value => {
+  render.showVectors = value
+})
 turbulenceGui.add(turbulenceParams, 'force', 0, 1).onChange(value => {
   turbulenceField.force = value
+  turbulenceField.updateTurbulence()
 })
 turbulenceGui.add(turbulenceParams, 'radius', 0, 1).onChange(value => {
   turbulenceField.radius = value
+  turbulenceField.updateTurbulence()
 })
-
 
 render.setup()
 render.loop()
