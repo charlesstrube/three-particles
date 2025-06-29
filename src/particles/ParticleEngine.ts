@@ -3,7 +3,7 @@ import { DefaultParticleFactory } from "./ParticleFactory"
 
 export class ParticleEngine implements ParticleEngineSchema {
 
-  private _particles: (ParticleSchema | undefined)[] = Array.from({ length: 10000 }, () => undefined)
+  private _particles: (ParticleSchema | undefined)[] = Array.from({ length: 30000 }, () => undefined)
   private _particleFactory: ParticleFactorySchema
 
   constructor(

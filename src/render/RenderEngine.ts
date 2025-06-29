@@ -112,7 +112,7 @@ export class RenderEngine {
     this.drawTurbulence();
     this.particlesGeometry = geometry;
     const material = new THREE.PointsMaterial();
-    material.size = .01;
+    material.size = .015;
     // material.map = texture;
     material.transparent = true;
     material.sizeAttenuation = true;

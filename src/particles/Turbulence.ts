@@ -54,7 +54,19 @@ export class Turbulence implements TurbulenceSchema {
     points.push(endPoint);
 
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 100 });
+
+    // Créer des couleurs pour le gradient (rouge au début, blanc à la fin)
+    const colors = [
+      1.0, 0.0, 0.0,  // Rouge au début
+      1.0, 1.0, .5   // Blanc à la fin
+    ];
+
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    const material = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      linewidth: 2
+    });
 
     const line = new THREE.Line(geometry, material);
 
@@ -64,6 +76,17 @@ export class Turbulence implements TurbulenceSchema {
   updateLine(): void {
     const direction = this.direction.clone().normalize();
     const endPoint = this.position.clone().add(direction.multiplyScalar(this._radius));
-    this.threeLine.geometry.setFromPoints([this.position, endPoint]);
+
+    const geometry = new THREE.BufferGeometry().setFromPoints([this.position, endPoint]);
+
+    // Maintenir les couleurs du gradient
+    const colors = [
+      1.0, 0.0, 0.0,  // Rouge au début
+      1.0, 1.0, 1.0   // Blanc à la fin
+    ];
+
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    this.threeLine.geometry = geometry;
   }
 }

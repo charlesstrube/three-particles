@@ -67,11 +67,11 @@ turbulenceGui.open()
 turbulenceGui.add(render, 'showVectors').onChange(value => {
   render.showVectors = value
 })
-turbulenceGui.add(turbulenceParams, 'force', 0, 1).onChange(value => {
+turbulenceGui.add(turbulenceParams, 'force', 0, 5).onChange(value => {
   turbulenceField.force = value
   turbulenceField.updateTurbulence()
 })
-turbulenceGui.add(turbulenceParams, 'radius', 0, 1).onChange(value => {
+turbulenceGui.add(turbulenceParams, 'radius', 0, 5).onChange(value => {
   turbulenceField.radius = value
   turbulenceField.updateTurbulence()
 })
