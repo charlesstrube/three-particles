@@ -20,6 +20,7 @@ export class RenderEngine {
 
   private _deltaTime: number = 0;
   private _state: Stats;
+  private geometry?: THREE.BufferGeometry;
 
   constructor({ width, height, fov = 75, near = 0.01, far = 1000 }: RenderEngineParams) {
     this.scene = new THREE.Scene();
@@ -70,6 +71,7 @@ export class RenderEngine {
 
     const color = new THREE.Color(0x00ff00);
     const geometry = this.createGeometry();
+    this.geometry = geometry;
     const material = new THREE.PointsMaterial();
     material.size = .1;
     material.color = color;
@@ -80,12 +82,24 @@ export class RenderEngine {
     this.scene.add(particles);
   }
 
+  updateGeometry(deltaTime: number) {
+    if (!this.geometry) return;
+    const positions = this.geometry.attributes.position.array;
+    for (let i = 0; i < positions.length; i += 3) {
+      const y = positions[i + 1];
+      positions[i + 1] = y + Math.sin(deltaTime * 0.001 + i) * 0.001; // petit mouvement
+    }
+    this.geometry.attributes.position.needsUpdate = true;
+  }
+
 
   render() {
     this._state.begin();
     const currentTime = performance.now();
     const deltaTime = currentTime - this._deltaTime;
     this._deltaTime = currentTime;
+
+    this.updateGeometry(deltaTime);
 
     this.renderer.render(this.scene, this.camera);
     this._state.end();
