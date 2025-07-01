@@ -63,11 +63,6 @@ export class TurbulenceField implements TurbulenceFieldSchema {
     return totalTurbulence;
   }
 
-  update(deltaTime: number): void {
-    // Pour l'instant, les points sont statiques
-    // On pourrait ajouter ici de l'animation des points si nécessaire
-  }
-
   private createRandomPattern(
     count: number,
     radius: number,

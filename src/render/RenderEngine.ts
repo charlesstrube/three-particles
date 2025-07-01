@@ -2,8 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'stats.js'
 
-import img from '../textures/disc.png'
-import type { ParticleEngineSchema, TurbulenceFieldSchema, TurbulenceSchema } from "../schemas";
+import type { ParticleEngineSchema, TurbulenceFieldSchema } from "../schemas";
 
 interface RenderEngineParams {
   width: number;
@@ -121,7 +120,7 @@ export class RenderEngine {
     this.scene.add(particles);
   }
 
-  updateGeometry(deltaTime: number) {
+  updateGeometry(_deltaTime: number) {
     if (!this.particlesGeometry) return;
     const positions = this.particlesGeometry.attributes.position.array;
     const colors = this.particlesGeometry.attributes.color.array;
